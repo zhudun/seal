@@ -244,7 +244,7 @@ public class EllipseStampUtil {
         AffineTransform currentTransform = g2d.getTransform();
         
         // 设置字体 - 对应Delphi代码中的'仿宋'字体
-        Font font = new Font("仿宋", Font.PLAIN, (int)(2.201f * scale));
+        Font font = new Font("仿宋", Font.PLAIN, (int)(3.201f * scale));
         
         // 创建文本布局
         FontRenderContext frc = g2d.getFontRenderContext();
