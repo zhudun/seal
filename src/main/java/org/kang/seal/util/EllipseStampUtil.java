@@ -67,22 +67,22 @@ public class EllipseStampUtil {
         // 平移坐标系到椭圆中心 - 对应Delphi代码中的TranslateTransform
         g2d.translate(centerX, centerY);
         
-        // 绘制信用代码/税号 - 对应Delphi代码中的第3步
-        if (creditCode != null && !creditCode.isEmpty()) {
-            drawCreditCode(g2d, creditCode, scale);
-        }
-        
         // 绘制公司名称 - 对应Delphi代码中的第4步
         if (corpName != null && !corpName.isEmpty()) {
             drawCompanyName(g2d, corpName, scale);
         }
         
-        // 绘制中心文字（如"贷款专用章"）- 对应Delphi代码中的第5步
+        // 绘制中心文字（如"贷款专用章"）- 现在放在中间位置
         if (stampText != null && !stampText.isEmpty()) {
             drawCenterText(g2d, stampText, scale);
         }
         
-        // 绘制印章编号 - 对应Delphi代码中的第6步
+        // 绘制信用代码/税号 - 现在放在下方位置
+        if (creditCode != null && !creditCode.isEmpty()) {
+            drawCreditCodeAtBottom(g2d, creditCode, scale);
+        }
+        
+        // 绘制印章编号 - 已注释掉
 //        if (stampNo != null && !stampNo.isEmpty()) {
 //            drawStampNumber(g2d, stampNo, scale);
 //        }
@@ -96,7 +96,7 @@ public class EllipseStampUtil {
     }
     
     /**
-     * 绘制信用代码/税号
+     * 绘制信用代码/税号 - 原始位置（中间）
      * 对应Delphi代码中的第3步
      */
     private static void drawCreditCode(Graphics2D g2d, String creditCode, float scale) {
@@ -120,6 +120,41 @@ public class EllipseStampUtil {
         
         // 绘制文本 - 对应Delphi代码中的FillPath
         g2d.fill(transformedShape);
+    }
+    
+    /**
+     * 绘制信用代码/税号 - 新位置（下方）
+     */
+    private static void drawCreditCodeAtBottom(Graphics2D g2d, String creditCode, float scale) {
+        // 保存当前变换
+        AffineTransform currentTransform = g2d.getTransform();
+        
+        // 平移坐标系原点到下方位置 - 使用原来"贷款专用章"的位置
+        g2d.translate(0, 7.5f * scale);
+        
+        // 设置字体 - 对应Delphi代码中的Arial字体
+        Font font = new Font("Arial", Font.PLAIN, (int)(2.273f * scale));
+        
+        // 创建文本布局 - 对应Delphi代码中的AddString
+        FontRenderContext frc = g2d.getFontRenderContext();
+        TextLayout textLayout = new TextLayout(creditCode, font, frc);
+        
+        // 获取文本边界
+        Rectangle2D bounds = textLayout.getBounds();
+        
+        // 创建路径 - 对应Delphi代码中的创建Path
+        Shape outline = textLayout.getOutline(AffineTransform.getTranslateInstance(-bounds.getWidth() / 2, bounds.getHeight() / 2));
+        
+        // 应用缩放变换 - 对应Delphi代码中的scalAffine(1, 1.3121, pPnts, iPntCnt)
+        AffineTransform scaleTransform = new AffineTransform();
+        scaleTransform.scale(1.0, 1.3121);
+        Shape transformedShape = scaleTransform.createTransformedShape(outline);
+        
+        // 绘制文本 - 对应Delphi代码中的FillPath
+        g2d.fill(transformedShape);
+        
+        // 恢复变换
+        g2d.setTransform(currentTransform);
     }
     
    /*
@@ -200,19 +235,13 @@ public class EllipseStampUtil {
         }
     }
 
-
-
-    
     /**
-     * 绘制中心文字
+     * 绘制中心文字 - 现在放在中间位置
      * 对应Delphi代码中的第5步
      */
     private static void drawCenterText(Graphics2D g2d, String centerText, float scale) {
         // 保存当前变换
         AffineTransform currentTransform = g2d.getTransform();
-        
-        // 平移坐标系原点 - 对应Delphi代码中的TranslateTransform(0, 7.5)
-        g2d.translate(0, 7.5f * scale);
         
         // 设置字体 - 对应Delphi代码中的'仿宋'字体
         Font font = new Font("仿宋", Font.PLAIN, (int)(2.201f * scale));
